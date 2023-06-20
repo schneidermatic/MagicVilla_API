@@ -30,48 +30,23 @@ namespace MagicVilla_VillaAPI.Controllers
 
 
         [HttpGet]
-        [ResponseCache(CacheProfileName = "Default30")]
-        [ProducesResponseType(StatusCodes.Status403Forbidden)]
-        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        public async Task<ActionResult<APIResponse>> GetVillas([FromQuery(Name = "filterOccupancy")] int? occupancy,
-            [FromQuery] string search, int pageSize = 0, int pageNumber = 1)
+        public async Task<ActionResult<APIResponse>> GetVillas()
         {
             try
             {
-
-                IEnumerable<Villa> villaList;
-
-                if (occupancy > 0)
-                {
-                    villaList = await _dbVilla.GetAllAsync(u => u.Occupancy == occupancy, pageSize: pageSize,
-                        pageNumber: pageNumber);
-                }
-                else
-                {
-                    villaList = await _dbVilla.GetAllAsync(pageSize: pageSize,
-                        pageNumber: pageNumber);
-                }
-                if (!string.IsNullOrEmpty(search))
-                {
-                    villaList = villaList.Where(u => u.Name.ToLower().Contains(search));
-                }
-                Pagination pagination = new() { PageNumber = pageNumber, PageSize = pageSize };
-
-                Response.Headers.Add("X-Pagination", JsonSerializer.Serialize(pagination));
+                IEnumerable<Villa> villaList = await _dbVilla.GetAllAsync();
                 _response.Result = _mapper.Map<List<VillaDTO>>(villaList);
                 _response.StatusCode = HttpStatusCode.OK;
                 return Ok(_response);
-
             }
             catch (Exception ex)
             {
                 _response.IsSuccess = false;
                 _response.ErrorMessages
-                     = new List<string>() { ex.ToString() };
+                    = new List<string>() { ex.ToString() };
             }
             return _response;
-
         }
 
         [HttpGet("{id:int}", Name = "GetVilla")]
