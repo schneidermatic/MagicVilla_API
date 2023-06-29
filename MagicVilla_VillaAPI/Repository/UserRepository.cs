@@ -20,7 +20,7 @@ namespace MagicVilla_VillaAPI.Repository
         public UserRepository(ApplicationDbContext db, IConfiguration configuration)
         {
             _db = db;
-            secretKey = configuration.GetValue<string>("ApiSetting:Secret");
+            secretKey = configuration.GetValue<string>("ApiSettings:Secret");
         }
 
         public bool IsUniqueUser(string username)
@@ -40,7 +40,11 @@ namespace MagicVilla_VillaAPI.Repository
 
             if (user == null) 
             {
-                return null;
+                return new LoginResponseDTO()
+                {
+                    Token = "",
+                    User = user
+                };
             }
             
             //if user was found generate JWT Token
